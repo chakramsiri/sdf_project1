@@ -17,3 +17,4 @@ This project implements a custom arithmetic library for performing operations on
 
 ```bash
 mvn compile exec:java -Dexec.args="<type> <operation> <operand1> <operand2>"
+
