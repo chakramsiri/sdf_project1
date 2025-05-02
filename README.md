@@ -16,11 +16,19 @@ This project implements a custom arithmetic library for performing operations on
 ### How to Run
 - Java
 - Python
+- Maven
 
 ### Usage
 
 ```bash
 java MyInfArith <type> <operation> <operand1> <operand2>
+```
+```bash
+python3 run_mainproject.py <type> <operation> <operand1> <operand2>
+```
+```bash
+mvn compile exec:java -Dexec.args="<type> <operation> <operand1> <operand2>"
+
 
 
 
