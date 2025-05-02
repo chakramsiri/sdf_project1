@@ -29,6 +29,7 @@ python3 run_mainproject.py <type> <operation> <operand1> <operand2>
 ```
 ```bash
 mvn compile exec:java -Dexec.args="<type> <operation> <operand1> <operand2>"
+```
 
 
 
