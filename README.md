@@ -14,6 +14,7 @@ This project implements a custom arithmetic library for performing operations on
 - Command-line interface via `MyInfArith` to perform operations.
 
 ### How to Run
+first open the current project directory and run the commands
 - Java
 - Python
 - Maven
