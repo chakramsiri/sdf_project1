@@ -13,8 +13,15 @@ This project implements a custom arithmetic library for performing operations on
   - Supports: addition, subtraction, multiplication, division.
 - Command-line interface via `MyInfArith` to perform operations.
 
+### How to Run
+- Java
+- Python
+
 ### Usage
 
 ```bash
-mvn compile exec:java -Dexec.args="<type> <operation> <operand1> <operand2>"
+java MyInfArith <type> <operation> <operand1> <operand2>
+
+
+
 
