@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Arbitrary Precision Arithmetic Library
 
 ## Project: SDF Project 1 – Infinite Precision Arithmetic
