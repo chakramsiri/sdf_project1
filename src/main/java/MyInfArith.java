@@ -33,9 +33,9 @@ public class MyInfArith {
 
                 switch (operation) {
                     case "add" -> result = num1.add(num2);
-                    case "sub" -> result = num1.subtract(num2);
-                    case "mul" -> result = num1.multiply(num2);
-                    case "div" -> result = num1.divide(num2);
+                    case "sub" -> result = num1.sub(num2);
+                    case "mul" -> result = num1.mul(num2);
+                    case "div" -> result = num1.div(num2);
                     default -> {
                         System.out.println("Please enter a valid operation");
                         return;
