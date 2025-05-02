@@ -16,4 +16,4 @@ This project implements a custom arithmetic library for performing operations on
 ### Usage
 
 ```bash
-java MyInfArith <type> <operation> <operand1> <operand2>
+mvn compile exec:java -Dexec.args="<type> <operation> <operand1> <operand2>"
