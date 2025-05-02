@@ -23,7 +23,6 @@
     <build>
         <finalName>aarithmetic</finalName>
         <plugins>
-            <!-- Maven Compiler Plugin to compile the code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -33,23 +32,13 @@
                     <target>21</target> 
                 </configuration>
             </plugin>
-
-            <!-- Exec Maven Plugin to run the main class -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Specify the fully-qualified name of the main class -->
-                            <mainClass>MyInfArith</mainClass> <!-- Change this if your main class is in a package -->
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <mainClass>MyInfArith</mainClass> 
+                </configuration>
             </plugin>
         </plugins>
     </build>
