@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Maven / Java
+target/
+out/
+*.class
+*.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
