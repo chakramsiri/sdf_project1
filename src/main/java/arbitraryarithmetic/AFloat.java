@@ -59,6 +59,8 @@ public class AFloat {
     }
 
     private int compareStrings(String a, String b) {
+        a = removeLeadingZeros(a);
+        b = removeLeadingZeros(b);
         if (a.length() != b.length()) return Integer.compare(a.length(), b.length());
         return a.compareTo(b);
     }
@@ -114,7 +116,8 @@ public class AFloat {
             resultChars[index++] = (char) (result[i] + '0');
         }
 
-        return new String(resultChars, 0, index);
+        String ans = new String(resultChars, 0, index);
+        return removeLeadingZeros(ans);
     }
 
     public String truncateDecimalPlaces(String value, int maxDecimalPlaces) {
@@ -312,6 +315,9 @@ public class AFloat {
 
         // Convert int array digits to a char array for the result string
         int start=0;
+        while (start < result.length - 1 && result[start] == 0) {
+            start++;
+        }
         int resultLength = result.length - start;
         char[] resultChars = new char[resultLength];
         for (int i = 0; i < resultLength; i++) {
@@ -320,117 +326,155 @@ public class AFloat {
 
         String resultStr = new String(resultChars);
         // Insert decimal point at the correct position
-        if (resultStr.length() <= totalDecimalDigits)
         if (totalDecimalDigits > 0) {
-            char[] padded = new char[totalDecimalDigits + 2]; // "0." + zero padding + digits
-            padded[0] = '0';
-            padded[1] = '.';
-            for (int i = 0; i < totalDecimalDigits - resultStr.length(); i++) {
-                padded[2 + i] = '0';
+            if (resultStr.length() <= totalDecimalDigits) {
+                char[] padded = new char[totalDecimalDigits + 2]; // "0." + zero padding + digits
+                padded[0] = '0';
+                padded[1] = '.';
+                for (int i = 0; i < totalDecimalDigits - resultStr.length(); i++) {
+                    padded[2 + i] = '0';
+                }
+                for (int i = 0; i < resultStr.length(); i++) {
+                    padded[2 + totalDecimalDigits - resultStr.length() + i] = resultStr.charAt(i);
+                }
+                resultStr = new String(padded);
+            } else {
+                // Normal case: insert decimal point
+                resultStr = resultStr.substring(0, resultStr.length() - totalDecimalDigits) + "." + resultStr.substring(resultStr.length() - totalDecimalDigits);
             }
-            for (int i = 0; i < resultStr.length(); i++) {
-                padded[2 + totalDecimalDigits - resultStr.length() + i] = resultStr.charAt(i);
-            }
-            resultStr = new String(padded);
-        } else {
-            // Normal case: insert decimal point
-            resultStr = resultStr.substring(0, resultStr.length() - totalDecimalDigits) + "." + resultStr.substring(resultStr.length() - totalDecimalDigits);
+        }
+        while (resultStr.contains(".") && resultStr.endsWith("0")) {
+            resultStr = resultStr.substring(0, resultStr.length() - 1);
         }
 
+        if (resultStr.endsWith(".")) {
+            resultStr = resultStr.substring(0, resultStr.length() - 1);
+        }
+        if (negA ^ negB && !resultStr.equals("0")) {
+            resultStr = "-" + resultStr;
+        }
 
         return new AFloat(resultStr);
-
     }
-        //division
-        public AFloat divide(AFloat value1){
-            if (value1.value.equals("0") || value1.value.equals("0.0")) {
-                throw new ArithmeticException("Division by zero");
-            }    
+    //division
+    public AFloat divide(AFloat value1){
+        if (value1.value.equals("0") || value1.value.equals("0.0")) {
+            throw new ArithmeticException("Division by zero");
+        }    
 
-            String dividend = this.value;
-            String divisor = value1.value;
-            boolean negativeResult = false;
+        String dividend = this.value;
+        String divisor = value1.value;
+        boolean negativeResult = false;
 
-            if (dividend.startsWith("-")) {
-                negativeResult = !negativeResult;
-                dividend = dividend.substring(1);
+        if (dividend.startsWith("-")) {
+            negativeResult = !negativeResult;
+            dividend = dividend.substring(1);
+        }
+        if (divisor.startsWith("-")) {
+            negativeResult = !negativeResult;
+            divisor = divisor.substring(1);
+        }
+
+        // Count decimal digits in each number
+        int decDigitsA = dividend.contains(".") ? dividend.length() - dividend.indexOf('.') - 1 : 0;
+        int decDigitsB = divisor.contains(".") ? divisor.length() - divisor.indexOf('.') - 1 : 0;
+        int DecimalDigits = decDigitsA - decDigitsB;
+
+        // Remove decimal points for integer division
+        String intA = dividend.replace(".", "");
+        String intB = divisor.replace(".", "");
+
+        if (DecimalDigits > 0) {
+            for (int i = 0; i < DecimalDigits; i++) {
+                intB += "0";
             }
-            if (divisor.startsWith("-")) {
-                negativeResult = !negativeResult;
-                divisor = divisor.substring(1);
+        } else if (DecimalDigits < 0) {
+            for (int i = 0; i < -DecimalDigits; i++) {
+                intA += "0";
+            }
+        }
+
+        // Initialize result array
+        char[] result = new char[intA.length()];
+        int resultIndex = 0;
+            String remainder = "";
+
+        // Perform long division
+        for (int i = 0; i < intA.length(); i++) {
+            // Append the current digit from dividend to the remainder
+            remainder += intA.charAt(i);
+            remainder = removeLeadingZeros(remainder);  // Remove leading zeros
+
+           int count = 0;
+
+            // Perform subtraction until the remainder is smaller than the divisor
+            while (compareStrings(remainder, intB) >= 0) {
+                remainder = removeLeadingZeros(subtractStrings(remainder, intB));
+                count++;
             }
 
-            // Count decimal digits in each number
-            int decDigitsA = dividend.contains(".") ? dividend.length() - dividend.indexOf('.') - 1 : 0;
-            int decDigitsB = divisor.contains(".") ? divisor.length() - divisor.indexOf('.') - 1 : 0;
-            int DecimalDigits = decDigitsA - decDigitsB;
+            // Store the quotient digit in the result array
+            result[resultIndex++] = (char) (count + '0');
+        }
 
-            // Remove decimal points for integer division
-            String intA = dividend.replace(".", "");
-            String intB = divisor.replace(".", "");
+        // Construct the final result string
+        int start =0;
+        char[] finalResult = new char[resultIndex - start];
+        for (int i = 0; i < finalResult.length; i++) {
+            finalResult[i] = result[start + i];
+        }
+        String quotient = new String(finalResult);
+        quotient = removeLeadingZeros(quotient);
 
-            if (DecimalDigits > 0) {
-                for (int i = 0; i < DecimalDigits; i++) {
-                    intB += "0";
-                }
-            } else if (DecimalDigits < 0) {
-                for (int i = 0; i < -DecimalDigits; i++) {
-                    intA += "0";
-                }
-            }
+        StringBuilder quotientBuilder = new StringBuilder(quotient);
 
-            // Initialize result array
-            char[] result = new char[intA.length()];
-            int resultIndex = 0;
-                String remainder = "";
+        if (!remainder.equals("0")) {
+            quotientBuilder.append(".");
 
-            // Perform long division
-            for (int i = 0; i < intA.length(); i++) {
-                // Append the current digit from dividend to the remainder
-                remainder += intA.charAt(i);
-                remainder = removeLeadingZeros(remainder);  // Remove leading zeros
+            int maxDecimalPlaces = 30;
 
-               int count = 0;
+            while (!remainder.equals("0") && maxDecimalPlaces-- > 0) {
 
-                // Perform subtraction until the remainder is smaller than the divisor
+                // Bring down a zero
+                remainder += "0";
+                remainder = removeLeadingZeros(remainder);
+
+                int count = 0;
+
                 while (compareStrings(remainder, intB) >= 0) {
-                    remainder = subtractStrings(remainder, intB);
+                    remainder = removeLeadingZeros(subtractStrings(remainder, intB));
                     count++;
                 }
 
-                // Store the quotient digit in the result array
-                result[resultIndex++] = (char) (count + '0');
+                quotientBuilder.append((char)(count + '0'));
             }
-
-            // Construct the final result string
-            int start =0;
-            char[] finalResult = new char[resultIndex - start];
-            for (int i = 0; i < finalResult.length; i++) {
-                finalResult[i] = result[start + i];
-            }
-            String quotient = new String(finalResult);
-
-            if (DecimalDigits > 0) {
-                int len = quotient.length();
-                if (len <= DecimalDigits) {
-                    // Pad with leading zeros
-                    String padded = "0.";
-                    for (int i = 0; i < DecimalDigits - len; i++) {
-                        padded += "0";
-                    }
-                    padded += quotient;
-                    quotient = padded;
-                } else {
-                    // Insert the decimal point at the correct position
-                    quotient = quotient.substring(0, quotient.length() - DecimalDigits) + "." + quotient.substring(quotient.length() - DecimalDigits);
-                }
-            }
-
-            int maxDecimalPlaces = 30;
-            String finalquotient = truncateDecimalPlaces(quotient, maxDecimalPlaces);
-        return new AFloat(finalquotient);
-
         }
+
+        quotient = quotientBuilder.toString();
+
+        // if (DecimalDigits > 0) {
+        //     int len = quotient.length();
+        //     if (len <= DecimalDigits) {
+        //         // Pad with leading zeros
+        //         String padded = "0.";
+        //         for (int i = 0; i < DecimalDigits - len; i++) {
+        //             padded += "0";
+        //         }
+        //         padded += quotient;
+        //         quotient = padded;
+        //     } else {
+        //         // Insert the decimal point at the correct position
+        //         quotient = quotient.substring(0, quotient.length() - DecimalDigits) + "." + quotient.substring(quotient.length() - DecimalDigits);
+        //     }
+        // }
+
+        String finalquotient = quotient;
+
+        if (negativeResult && !finalquotient.equals("0")) {
+            finalquotient = "-" + finalquotient;
+        }
+        return new AFloat(finalquotient);
+    }
 
     @Override
     public String toString() {

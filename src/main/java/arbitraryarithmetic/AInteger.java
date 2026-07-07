@@ -1,5 +1,6 @@
 package arbitraryarithmetic;
 
+
 public class AInteger {
     private String value;
 
@@ -70,36 +71,30 @@ public class AInteger {
         String num1 = this.value;
         String num2 = value1.value;
     
-        int len1 = num1.length();
-        int len2 = num2.length();
-        int maxLen = Math.max(len1, len2) + 1; // +1 for possible carry
+        int i = num1.length()-1;
+        int j = num2.length()-1;
     
-        char[] tempResult = new char[maxLen];
-        int carry = 0, k = 0;
-        int i = len1 - 1;
-        int j = len2 - 1;
+        int carry = 0;
+	    StringBuilder sb = new StringBuilder();
 
         while (i >= 0 || j >= 0 || carry != 0) {
             int digit1 = (i >= 0) ? num1.charAt(i--) - '0' : 0;
             int digit2 = (j >= 0) ? num2.charAt(j--) - '0' : 0;
 
             int sum = digit1 + digit2 + carry;
-            tempResult[k++] = (char) ((sum % 10) + '0');
+            sb.append((char) ((sum % 10) + '0'));
             carry = sum / 10;
         }
 
-        char[] finalResult = new char[k];
-        for (int m = 0; m < k; m++) {
-            finalResult[m] = tempResult[k - m - 1];
-        }
+        sb.reverse();
+        String result = sb.toString();
 
-        return new AInteger(new String(finalResult));
+        return new AInteger(result);
     }
     //subtraction
     public AInteger subtract(AInteger value1){
         String num1 = this.value;
         String num2 = value1.value;
-
         
         boolean resultNegative = false;
         if (compareStrings(num1, num2) < 0) {
@@ -123,13 +118,12 @@ public class AInteger {
             AInteger temp1 = new AInteger(value1.value.substring(1));
             return this.add(temp1);
         }
-        int len1 = num1.length();
-        int len2 = num2.length();
-        int maxLen = Math.max(len1, len2) ;
-        char[] tempResult = new char[maxLen];
-        int borrow = 0, k = 0;
-        int i = len1 - 1;
-        int j = len2 - 1;
+        int i = num1.length() - 1;
+        int j = num2.length() - 1;
+        
+        int borrow = 0;
+
+        StringBuilder sb = new StringBuilder();
 
         while (i >= 0 || j >= 0) {
             int digit1 = (i >= 0) ? num1.charAt(i--) - '0' : 0;
@@ -142,14 +136,15 @@ public class AInteger {
             } else {
                 borrow = 0;
             }
-            tempResult[k++] = (char) (diff + '0');
+            sb.append((char)(diff + '0'));
         }
-        char[] finalResult = new char[k];
-        for (int m = 0; m < k; m++) {
-            finalResult[m] = tempResult[k - m - 1];
+        while(sb.length()>1 && sb.charAt(sb.length() - 1) == '0') {
+            sb.setLength(sb.length() - 1);
         }
 
-        String result = new String(finalResult);
+        sb.reverse();
+
+        String result = sb.toString();
         if (resultNegative) {
             result = "-" + result;
         }
@@ -186,18 +181,26 @@ public class AInteger {
         }
 
         // Convert int array digits to a char array for the result string
-        int start=0;
-        int resultLength = product.length - start;
-        char[] resultChars = new char[resultLength];
-        for (int i = 0; i < resultLength; i++) {
-            resultChars[i] = (char)(product[start + i] + '0');
+        StringBuilder sb = new StringBuilder();
+        boolean leadingZero = true;
+        for(int digit : product) {
+            if(digit == 0 && leadingZero){
+                continue;
+            }
+            leadingZero = false;
+            sb.append((char) (digit + '0'));
         }
 
-        String result = new String(resultChars);
-        if (negativeResult && !result.equals("0")) {
-            result = "-" + result;
+        if(sb.length() == 0){
+            sb.append('0');
         }
-        return new AInteger(result);
+
+        if(negativeResult && !sb.toString().equals("0")) {
+            sb.insert(0,'-');
+        }
+
+        return new AInteger(sb.toString());
+        
     }
     //division
     public AInteger divide(AInteger value1){
@@ -218,9 +221,7 @@ public class AInteger {
             divisor = divisor.substring(1);
         }
 
-        char[] result = new char[dividend.length()];
-        int resultIndex = 0;
-
+        StringBuilder result = new StringBuilder();
         String remainder = "";
 
         for (int i = 0; i < dividend.length(); i++) {
@@ -237,19 +238,14 @@ public class AInteger {
                 count++;
            }
 
-           result[resultIndex++] = (char) (count + '0');
+           result.append((char)(count + '0'));
         }
         int start = 0;
-        while (start < resultIndex - 1 && result[start] == '0') {
+        while (start < result.length()-1 && result.charAt(start) == '0') {
             start++;
         }
 
-        char[] finalResult = new char[resultIndex - start];
-        for (int i = 0; i < finalResult.length; i++) {
-            finalResult[i] = result[start + i];
-        }
-
-        String quotient = new String(finalResult);
+        String quotient = result.substring(start);
         if (negativeResult && !quotient.equals("0")) {
             quotient = "-" + quotient;
         }
